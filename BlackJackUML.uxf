@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>8</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>112</x>
+      <y>240</y>
+      <w>160</w>
+      <h>216</h>
+    </coordinates>
+    <panel_attributes>UserInterface
+-
+gameIntro : str
+roundQuestion(str) : bool
+displayScore(int): str 
+displayCard(str) : str
+endGame(int): str</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>264</x>
+      <y>280</y>
+      <w>208</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>240.0;10.0;10.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>816</x>
+      <y>112</y>
+      <w>184</w>
+      <h>184</h>
+    </coordinates>
+    <panel_attributes>Statistics
+-
+allScores : int 
+allRoundsPlayed : int 
+-
+addScores(int) : int
+addRoundsPlayed(int) : int
+average(int,int) : int 
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>640</x>
+      <y>208</y>
+      <w>192</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>10.0;40.0;220.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>456</x>
+      <y>184</y>
+      <w>192</w>
+      <h>200</h>
+    </coordinates>
+    <panel_attributes>BlackJack
+-
+deck : class
+UI : class
+-
+playGame : None
+playRound : None</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>640</x>
+      <y>320</y>
+      <w>192</w>
+      <h>136</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;220.0;150.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>816</x>
+      <y>352</y>
+      <w>184</w>
+      <h>232</h>
+    </coordinates>
+    <panel_attributes>Deck
+-
+mainDeck : int
+sumCap : int
+sumMin : int
+-
+getMainDeck() : int 
+decreaseMainDeck(int) : int
+score(int) : int 
+dealtCards() : str,int</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>
