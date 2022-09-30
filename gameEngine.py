@@ -2,7 +2,7 @@ import random
 import deckOfCards
 import gameUI
 
-class BlackJackGame:
+class BlackJackEngine:
     def __init__(self):
         self.deck = deckOfCards.Deck()
         self.UI = gameUI.UserInterface()
@@ -180,12 +180,3 @@ class Statistics:
         
         except: 
             return 0
-
-        
-
-def runProgram():
-    game = BlackJackGame()
-    game.playGame()
-
-if __name__ == "__main__":
-    runProgram()
