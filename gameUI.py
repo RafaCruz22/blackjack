@@ -122,7 +122,7 @@ class UserInterface:
             print("You lost, went over 21!")
             print("Points for hand : 0")
 
-    def endGame(self, end, score, hands, average):
+    def gameStats(self, end, score, hands, average):
 
         if end == "beforeStart":
             print()
@@ -130,6 +130,7 @@ class UserInterface:
             print()
 
         print()
+        
         endGameMSG = (
             "                                                              "
             + f"\n    Scores                    |        {score}           ".rjust(10)

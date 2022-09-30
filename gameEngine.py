@@ -1,10 +1,10 @@
 import random
-import deckCards
+import deckOfCards
 import gameUI
 
 class BlackJackGame:
     def __init__(self):
-        self.deck = deckCards.Deck()
+        self.deck = deckOfCards.Deck()
         self.UI = gameUI.UserInterface()
         self.stats = Statistics()
         self.sumCap = 21
@@ -31,7 +31,7 @@ class BlackJackGame:
         scores = self.stats.getScore()
         rounds = self.stats.getRoundsPlayed(self.numHand)
         percentage = self.stats.average()
-        self.UI.endGame("beforeStart", scores, rounds, percentage)
+        self.UI.gameStats("beforeStart", scores, rounds, percentage)
 
     def playRound(self):
         print()

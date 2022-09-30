@@ -1,4 +1,5 @@
 import random
+import cards
 
 class Deck:
     def __init__(self):
@@ -24,21 +25,26 @@ class Deck:
         random.shuffle(suits)
         randomPick = random.randrange(0, len(suits))
         randSuit = suits[randomPick]
+        
         if randSuit not in suits:
             randomPick = random.randrange(0, len(suits))
             randSuit = suits[randomPick]
+        
         randomValue = random.randint(1, 13)
+        
         while True:
             if randomValue not in self.suits[randSuit]:
                 self.suits[randSuit].add(randomValue)
                 return randSuit, randomValue
                 break
+            
             elif len(self.suits[randSuit]) != 13:
                 for x in range(1, 20):
                     x = random.randint(1, 13)
                     if x not in self.suits[randSuit]:
                         randomValue = x
                         break
+            
             elif len(self.suits[randSuit]) == 13:
                 suits.remove(randSuit)
                 randomPick = random.randrange(0, len(suits))
