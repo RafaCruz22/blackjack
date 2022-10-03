@@ -1,5 +1,5 @@
 
-class Card: 
+class PlayingCard: 
 
     def __init__(self):
         self.rank = [1,2,3,4,5,6,7,8,9,10,11,12,13] 
@@ -8,11 +8,14 @@ class Card:
         self.card = []
         
     def createCard(self):
-        self.card = [self.rank[0],self.suits[0]]
+        self.card = [self.rank[0],self.suit[0]]
+        return self.card
         
     def getCardRank(self): 
         return self.card[0]
 
     def getCardSuit(self):
         return self.card[1]
+    
+
     

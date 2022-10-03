@@ -1,3 +1,7 @@
+from collections import defaultdict
+from turtle import clear
+
+
 class UserInterface:
     def gameIntro(self):
 
@@ -23,33 +27,37 @@ class UserInterface:
 
     def banner(self, whichBanner : str, msg : str ):
 
-        if whichBanner == "complete": 
-            print()
-            print(("_" * 66 ).center(60))
-            print()
-            print(msg.center(60))
-            print(("_" * 66 ).center(60))
-            print()
-        
-        if whichBanner == "top":
-            print()
-            print(("_" * 66 ).center(60))
-            print()
-            print(msg.center(60))
+        match whichBanner:
+            case "complete": 
+                print()
+                print(("_" * 66 ).center(60))
+                print()
+                print(msg.center(60))
+                print(("_" * 66 ).center(60))
+                print()
+            
+            case "top":
+                print()
+                print(("_" * 66 ).center(60))
+                print()
+                print(msg.center(60))
 
-        if whichBanner == "bottom":
-            print(msg.center(60))
-            print(("_" * 66 ).center(60))
-            print()
+            case "bottom":
+                print(msg.center(60))
+                print(("_" * 66 ).center(60))
+                print()
 
-        if whichBanner == "simpleLine": 
-            print(("-" * 85 ).center(60))
+            case _: 
+                print(("-" * 85 ).center(60))
 
     def headingPrint(self, numHand):
-        print(f" - Hand {numHand} - ")
+        print(f" - Round {numHand} - ")
         print()
-        print("Cards")
-        print("-" * 5)
+    
+    def whomsTurn(self,whom):
+        msg = f"{whom} Hand"
+        print(msg)
+        print("-" * len(msg))
 
     def deckDisplay(self, deckStatus):
 
@@ -130,7 +138,7 @@ class UserInterface:
             print()
 
         print()
-        
+
         endGameMSG = (
             "                                                              "
             + f"\n    Scores                    |        {score}           ".rjust(10)
@@ -140,3 +148,62 @@ class UserInterface:
         )
         print(endGameMSG)
         print()
+
+    def quitGameDialog(self): 
+        print()
+        self.end = input("Are you sure you want to quit? ").lower().strip()
+        print()
+        
+        if self.end == "yes":
+            return False
+        
+        elif self.end == "no":
+            return True
+        
+        else:
+            print("Invalid Input!")
+
+    def displayCards(self,hand):
+        suits = {
+            "hearts" : "\u2665", 
+            "diamonds" : "\u2666",
+            "clubs" : "\u2663",
+            "spades" : "\u2660"
+        }
+        cards = defaultdict(list)
+
+        for card in hand: 
+            rank = card[0]
+            suit =  suits[card[1]]
+
+            for line in range(0,9): 
+                if line == 0: 
+                    cards[line].append("|------------|")
+                
+                elif line == 1: 
+                    cards[line].append(f"| {rank:<11}|")
+
+                elif line == 4:
+                    cards[line].append(f"|{suit:^12}|")
+
+                elif line == 7:
+                    cards[line].append(f"|{rank:>11} |")
+
+                elif line == 8:
+                    cards[line].append("|------------|")
+                else: 
+                    cards[line].append("|            |")
+
+        for line in range(9): 
+            for card in range(0,len(hand)):
+                print(cards[line][card], end= " ")
+            
+            print(" ")
+
+if __name__ == "__main__":
+    UI = UserInterface()
+    UI.displayCards("J","hearts")
+    UI.displayCards("Q","diamonds")
+    UI.displayCards("K","spades")
+    UI.displayCards("A","clubs")
+    

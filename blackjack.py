@@ -1,8 +1,8 @@
-import gameEngine
+from engine import BlackJackEngine
 
-def runProgram():
-    game = gameEngine.BlackJackEngine()
-    game.play()
+def run():
+    game = BlackJackEngine()
+    game.start()
 
 if __name__ == "__main__":
-    runProgram()
+    run()

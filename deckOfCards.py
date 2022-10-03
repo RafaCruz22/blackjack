@@ -1,27 +1,27 @@
 import random
-import cards
+from cards import PlayingCard
 
 class Deck:
     def __init__(self):
-        self.mainDeck = 52
+        self.deckCount = 52
         self.suits = {
-            "Spades": set(),
-            "Clubs": set(),
-            "Diamonds": set(),
-            "Hearts": set(),
+            "spades": set(),
+            "clubs": set(),
+            "diamonds": set(),
+            "hearts": set(),
         }
 
-    def getMainDeck(self):
-        return self.mainDeck
+    def getDeckCount(self):
+        return self.deckCount
 
     def resetAmount(self):
-        self.mainDeck = 52
+        self.deckCount = 52
 
     def decreaseMainDeck(self):
-        self.mainDeck -= 1
+        self.deckCount -= 1
 
     def dealCards(self):
-        suits = ["Spades", "Clubs", "Diamonds", "Hearts"]
+        suits = ["spades", "clubs", "diamonds", "hearts"]
         random.shuffle(suits)
         randomPick = random.randrange(0, len(suits))
         randSuit = suits[randomPick]
@@ -52,10 +52,10 @@ class Deck:
 
     def resetDeck(self):
         self.suits = {
-            "Spades": set(),
-            "Clubs": set(),
-            "Diamonds": set(),
-            "Hearts": set(),
+            "spades": set(),
+            "clubs": set(),
+            "diamonds": set(),
+            "hearts": set(),
         }
 
     def getsuits(self):
