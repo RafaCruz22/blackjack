@@ -14,190 +14,228 @@ class BlackJackEngine:
 
     def start(self):
 
-        self.UI.banner("simpleLine", None)
-        print()
-        self.UI.gameIntro()
-        print()
-        self.UI.banner("simpleLine", None)
+        self.UI.banner("top", self.UI.gameIntro())
 
-        deck = self.deck.getDeckCount()
-        print()
-        self.UI.displayCard("deck", None, deck)
-        
         newGame = self.UI.playNewGame()
         if newGame == True:
             self.playRound()
         
-        scores = self.stats.getScore()
-        rounds = self.stats.getRoundsPlayed(self.round)
-        percentage = self.stats.average()
-        self.UI.gameStats("beforeStart", scores, rounds, percentage)
-
+        self.showStats()
+ 
     def playRound(self):
-        print()
-        
         while self.deck.getDeckCount() > 1:
 
             self.round += 1
 
-            print()
+            self.UI.banner("round", str(self.round))
+            self.UI.banner("deck", str(self.deck.getDeckCount()))
+            self.UI.banner("card", None)
+
+            #deals hand to player first, dealer last. dealed alternating
+            self.dealHand()
+            self.showHands("hideDealer")
+
+            #checks if player was deatlt a hand over 21 
+            self.check("dealt_over_21") 
             self.UI.banner("simpleLine", None)
-            self.UI.headingPrint(self.round)
 
-             #dealers hand
-            self.UI.whomsTurn("Dealer's")
-            for deal in range(2):
-                randSuit, cardValue = self.deck.dealCards()
-                self.dealersHand.append([cardValue, randSuit])
-                self.deck.decreaseMainDeck()
-                self.dealerScore += cardValue
+            if self.calculatesHand() == False:
+                return False
+
+
+    def dealHand(self):
+        turn = "players"
+        for deal in range(4):
+            suit, rank = self.deck.dealCards()
+
+            if turn == "players":
+                self.playersHand.append([rank, suit])
+                self.playerScore += rank
+                turn = "dealer"
+            else: 
+                self.dealersHand.append([rank, suit])
+                self.dealerScore += rank
+                turn = "players"
+    
+            self.deck.decreaseMainDeck()
+
+
+    def calculatesHand(self):
+        
+        while self.playerScore != 0:
+            check = self.check("empty")
             
-            self.UI.displayCards(self.dealersHand)
-            # self.UI.displayScore(self.dealerScore)
-            print()
-
-            #players hand
-            self.UI.whomsTurn("Player's")
-            for deal in range(2):
-                randSuit, cardValue = self.deck.dealCards()
-                self.playersHand.append([cardValue, randSuit])
-                self.deck.decreaseMainDeck()
-                self.playerScore += cardValue
-
-            self.UI.displayCards(self.playersHand)
-            self.UI.displayScore(self.playerScore)
-            print()
-
-            self.UI.displayScore(self.handSum)
-            self.UI.banner("simpleLine", None)
-            print()
-
-            self.check("dealt_over_21")
+            if check == "end":
+                break
             
-            while self.handSum != 0:
-                check = self.check("empty")
+            self.UI.banner("deck", str(self.deck.getDeckCount()))
+            stayHit = self.UI.stayHit()
+            
+            #player hit
+            if stayHit == "hit":
+                # might want to display CARD
+                suit, rank = self.deck.dealCards()
+                self.playersHand.append([rank, suit])
+
+                self.deck.decreaseMainDeck()
+                self.playerScore += rank
+
+                self.showHands("hideDealer")
+                
+                self.check("hit_one_card_remain")
+                check = self.check("over_21")
                 
                 if check == "end":
                     break
-                
-                deck = self.deck.getDeckCount()
-                self.UI.displayCard("deck", None, deck)
-                stayHit = self.UI.stayHit()
-                
-                if stayHit == "hit":
-                    self.UI.displayCard("hit card", None, None)
-                    randSuit, cardValue = self.deck.dealCards()
-                    self.dealersHand.append([cardValue, randSuit])
-                    self.UI.displayCards(self.dealersHand)
-                    self.deck.decreaseMainDeck()
-                    self.handSum += cardValue
-                    
-                    self.UI.displayScore(self.handSum)
-                    self.check("hit_one_card_remain")
-                    check = self.check("over_21")
+            
+            #player Stayed
+            elif stayHit == "stay":
 
-                    print("it", check)
-                    
-                    if check == "end":
-                        break
+                # deal to dealer until dealers has over players hand,at 21, or over the limit
+                # if dealer & players score are eqaul player keeps his bet
+                check = self.check("dealerWon") 
                 
-                elif stayHit == "stay":
-                    check = self.check("under_12")
-                    
-                    if check == "end":
-                        break
+                if check == "end":
+                    break
+            
+            elif stayHit == False:
+                quitResult = self.UI.quitGameDialog()
                 
-                elif stayHit == False:
-                    quitResult = self.UI.quitGameDialog()
-                 
-                    match quitResult: 
-                        case True:
-                            continue 
-                        case False: 
-                            return False 
-                        
-                        case _: 
-                            quitResult
+                match quitResult: 
+                    case True:
+                        return True
+                    case False: 
+                        return False 
+                    
+                    case _: 
+                        quitResult        
 
-        # scores = self.stats.getScore()
-        # rounds = self.stats.getRoundsPlayed(self.round)
-        # percentage = self.stats.average()
-        # self.UI.gameStats(None,scores, rounds, percentage)
-        return False
+    def showHands(self,show):
+        print()
+
+        match show:
+            case "both":
+                self.UI.whosTurn("Dealer")
+                self.UI.displayCards(self.dealersHand,None)
+                self.UI.displayScore(self.dealerScore)
+                print()
+
+                self.UI.whosTurn("Player")
+                self.UI.displayCards(self.playersHand,None)
+                self.UI.displayScore(self.playerScore)
+                print()
+            
+            case "hideDealer":
+                self.UI.whosTurn("Dealer")
+                self.UI.displayCards(self.dealersHand,"hide")
+                print()
+
+                self.UI.whosTurn("Player")
+                self.UI.displayCards(self.playersHand,None)
+                self.UI.displayScore(self.playerScore)
+                print()
+
+            case _:
+                print("Error")
 
     def check(self, checks):
         if checks == "empty":
             if self.deck.getDeckCount() == 0:
-                if (self.handSum <= self.sumCap) and (self.handSum >= self.sumMin):
-                    self.stats.addScores(self.handSum)
-                    self.UI.winLoseDisplay("you_won")
-                    self.stats.increaseNumOfScore()
-                    self.handSum = 0
+                if (self.playerScore <= self.sumCap) and (self.playerScore > self.dealerScore):
+                    self.stats.playerPoints(self.playerScore)
+                    self.UI.displayWinner("you_won",None)
+                    self.stats.increaseRound()
                 
-                elif self.handSum < self.sumMin:
-                    self.UI.winLoseDisplay(None, "under_12", None)
-                    self.stats.increaseNumOfScore()
-                    self.handSum = 0
+                    self.showHands("both")
+                    self.playerScore = 0
+                
+                elif self.playerScore < self.dealerScore:
+                    self.UI.displayWinner("dealerWon", None)
+                    self.stats.increaseRound()
+                    
+                    self.showHands("both")
+                    self.playerScore = 0
+                
                 self.UI.deckDisplay("emtpy")
                 return "end"
         
         if checks == "dealt_over_21":
-            if self.handSum > self.sumCap:
-                self.UI.winLoseDisplay(None, "dealt_lost", None)
-                self.stats.increaseNumOfScore()
-                self.handSum = 0
+            if self.playerScore > self.sumCap:
+                self.UI.displayWinner("dealt_lost", None)
+                self.stats.increaseRound()
+                
+                self.UI.banner("card", None)
+                self.showHands("both")
+
+                self.playerScore = 0
                 self.resetHands()
         
         if checks == "hit_one_card_remain":
             if self.deck.getDeckCount() <= 1:
-                if (self.handSum <= self.sumCap) and (self.handSum >= self.sumMin):
-                    self.stats.addScores(self.handSum)
-                    self.UI.winLoseDisplay("you_won", None, self.handSum)
-                    self.stats.increaseNumOfScore()
-                    self.handSum = 0
+                if (self.playerScore <= self.sumCap) and (self.playerScore > self.dealerScore):
+                    self.stats.playerPoints(self.playerScore)
+                    self.UI.displayWinner("you_won", self.playerScore)
+                    self.stats.increaseRound()
+                    
+                    self.showHands("both")
+                    self.playerScore = 0
         
         if checks == "over_21":
-            if self.handSum > self.sumCap:
-                self.UI.winLoseDisplay(None, "over_21", None)
-                self.stats.increaseNumOfScore()
-                self.handSum = 0
+            if self.playerScore > self.sumCap:
+                self.UI.displayWinner("over_21", None)
+                self.stats.increaseRound()
+                
+                self.showHands("both")
+                self.playerScore = 0
                 self.resetHands()
 
                 return "end"
        
-        if checks == "under_12":
-            if self.handSum < self.sumMin:
-                self.UI.winLoseDisplay(None, "under_12", None)
-                self.stats.increaseNumOfScore()
-                self.handSum = 0
+        if checks == "dealerWon":
+            if self.playerScore <= self.dealerScore and self.dealerScore <= self.sumCap:
+                self.UI.displayWinner("dealerWon", None)
+                self.stats.increaseRound()
+
+                self.showHands("both")
+                self.playerScore = 0
                 self.resetHands()
                 
             else:
-                self.stats.addScores(self.handSum)
-                self.UI.winLoseDisplay("you_won", None, self.handSum)
-                self.stats.increaseNumOfScore()
-                self.handSum = 0
+                self.UI.displayWinner("you_won", self.playerScore)
+                self.stats.playerPoints(self.playerScore)
+                self.stats.increaseRound()
+
+                self.showHands("both")
+                self.playerScore = 0
                 self.resetHands()
 
                 return "end"
     
     def resetHands(self): 
-        self.dealersHand = []
+        self.dealersHand, self.playersHand = [], []
+        self.dealerScore, self.playerScore  = 0, 0
+
+    def showStats(self):
+        scores = self.stats.getScore()
+        rounds = self.stats.getRoundsPlayed(self.round)
+        percentage = self.stats.average()
+        self.UI.gameStats(scores, rounds, percentage)
+       
 
 class Statistics:
     def __init__(self):
         self.allScores = 0
         self.allRoundsPlayed = 0
-        self.numOfScores = 0
+        self.numOfRounds = 0
 
     def getScore(self):
         return self.allScores
 
-    def addScores(self, endScore):
+    def playerPoints(self, endScore):
         self.allScores += endScore
 
-    def increaseNumOfScore(self):
-        self.numOfScores += 1
+    def increaseRound(self):
+        self.numOfRounds += 1
 
     def getRoundsPlayed(self, rounds):
         self.allRoundsPlayed += rounds
@@ -210,3 +248,8 @@ class Statistics:
         
         except: 
             return 0
+
+
+if __name__ == "__main__":
+    test = BlackJackEngine()
+    test.start()

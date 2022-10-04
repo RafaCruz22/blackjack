@@ -1,5 +1,4 @@
 import random
-from cards import PlayingCard
 
 class Deck:
     def __init__(self):

@@ -1,8 +1,10 @@
 from collections import defaultdict
+from tkinter import E
 from turtle import clear
 
 
 class UserInterface:
+
     def gameIntro(self):
 
         gameInfo = (
@@ -22,39 +24,46 @@ class UserInterface:
             + "\n  *                      May the odds be in your favor.                          *"
             + "\n  ********************************************************************************"
         )
-        print(gameInfo)
-        print()
+        
+        return gameInfo
 
     def banner(self, whichBanner : str, msg : str ):
 
         match whichBanner:
             case "complete": 
                 print()
-                print(("_" * 66 ).center(60))
-                print()
+                print(("_" * 85) + "\n" )
                 print(msg.center(60))
-                print(("_" * 66 ).center(60))
-                print()
+                print(("_" * 85) + "\n" )
+
+            case "round": 
+                print("_" * 85 )
+                print(f" - Round {msg} - ".center(85))
+                print(("_" * 85) + "\n" )
             
             case "top":
                 print()
-                print(("_" * 66 ).center(60))
+                print("_" * 85 )
                 print()
                 print(msg.center(60))
 
             case "bottom":
                 print(msg.center(60))
-                print(("_" * 66 ).center(60))
+                print("_" * 85 )
                 print()
 
-            case _: 
-                print(("-" * 85 ).center(60))
+            case "deck":
+                print(f"--> Deck: {msg} Cards <--\n")
 
-    def headingPrint(self, numHand):
-        print(f" - Round {numHand} - ")
-        print()
-    
-    def whomsTurn(self,whom):
+            case "card":
+                print()
+                print("Cards")
+                print("-" * 5)
+
+            case _: 
+                print("_" * 85 )
+
+    def whosTurn(self,whom):
         msg = f"{whom} Hand"
         print(msg)
         print("-" * len(msg))
@@ -69,10 +78,10 @@ class UserInterface:
     def playNewGame(self):
         print()
         while True:
-            user = input("Start BlackJack? (yes or no)").lower().strip()
-            if user == "yes":
+            user = input("Start BlackJack?: ").lower().strip()
+            if user == "yes" or user == "y":
                 return True
-            elif user == "no":
+            elif user == "no" or user == "n":
                 return False
             else:
                 print("Invalid Input!")
@@ -93,16 +102,11 @@ class UserInterface:
             print("Invalid Input!")
 
     def displayScore(self,score):
-        print()
         print(f"\033[1mScore : {score}\033[0m")
         print()
 
-    def displayCard(self, whichCard, suit, value):
-        if whichCard == "deal card":
-            display = f"{suit} {value}"
-            print(display)
-
-        elif whichCard == "deck":
+    def displayCard(self, whichCard, value):
+        if whichCard == "deck":
             print(f"** Deck: {value} Cards **")
             print()
 
@@ -111,32 +115,30 @@ class UserInterface:
             print("Card")
             print("-" * 4)
 
-    def winLoseDisplay(self, win, lose, score):
+    def displayWinner(self, whoWon, score):
 
-        if win == "you_won":
+        if whoWon == "you_won":
             print()
             print(f"You won {score} points!")
 
-        if lose == "under_12":
-            print("You lost, hand under 12.")
+        if whoWon == "dealerWon":
+            print("You lost, dealer has a better hand.")
             print("Points for hand : 0")
 
-        if lose == "dealt_lost":
+        if whoWon == "dealt_lost":
             print("Dealt hand over 21!")
             print("Bad Luck!")
             print("Points for hand : 0")
 
-        if lose == "over_21":
+        if whoWon == "over_21":
             print("You lost, went over 21!")
             print("Points for hand : 0")
 
-    def gameStats(self, end, score, hands, average):
+    def gameStats(self, score, hands, average):
 
-        if end == "beforeStart":
-            print()
-            print("Thanks for Playing!")
-            print()
-
+        print()
+        print("Thanks for Playing!")
+        print()
         print()
 
         endGameMSG = (
@@ -163,7 +165,7 @@ class UserInterface:
         else:
             print("Invalid Input!")
 
-    def displayCards(self,hand):
+    def displayCards(self,hand,hideCard):
         suits = {
             "hearts" : "\u2665", 
             "diamonds" : "\u2666",
@@ -171,6 +173,21 @@ class UserInterface:
             "spades" : "\u2660"
         }
         cards = defaultdict(list)
+
+
+        hiddenCard = [
+            "|------------|",
+            "|$$$$$$$$$$$$|",
+            "|¢¢¢¢¢¢¢¢¢¢¢¢|",
+            "|$$$$$$$$$$$$|",
+            "|¢¢¢¢¢¢¢¢¢¢¢¢|",
+            "|$$$$$$$$$$$$|",
+            "|¢¢¢¢¢¢¢¢¢¢¢¢|",
+            "|$$$$$$$$$$$$|",
+            "|------------|"
+        ]
+
+        cards["hidden"] = hiddenCard
 
         for card in hand: 
             rank = card[0]
@@ -194,16 +211,21 @@ class UserInterface:
                 else: 
                     cards[line].append("|            |")
 
-        for line in range(9): 
-            for card in range(0,len(hand)):
-                print(cards[line][card], end= " ")
-            
-            print(" ")
+        if hideCard == "hide":
+            for line in range(9):
+                print(cards.get("hidden")[line], end = " ")
+                for card in range(0,len(hand)-1):
+                    print(cards[line][card], end= " ")
+                
+                print(" ")
+                
+        else: 
+            for line in range(9): 
+                for card in range(0,len(hand)):
+                    print(cards[line][card], end= " ")
+                
+                print(" ")
+
 
 if __name__ == "__main__":
     UI = UserInterface()
-    UI.displayCards("J","hearts")
-    UI.displayCards("Q","diamonds")
-    UI.displayCards("K","spades")
-    UI.displayCards("A","clubs")
-    
