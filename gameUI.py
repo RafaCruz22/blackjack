@@ -5,6 +5,10 @@ from turtle import clear
 
 class UserInterface:
 
+    def __init__(self):
+        self.cards = defaultdict(list)
+        self.hiddenCard() 
+
     def gameIntro(self):
 
         gameInfo = (
@@ -78,103 +82,78 @@ class UserInterface:
     def playNewGame(self):
         print()
         while True:
-            user = input("Start BlackJack?: ").lower().strip()
-            if user == "yes" or user == "y":
-                return True
-            elif user == "no" or user == "n":
-                return False
-            else:
-                print("Invalid Input!")
+            match input("Start BlackJack?: ").lower().strip():
+                case "yes" | "y":
+                    return True
+
+                case "no" | "n":
+                    return False
+
+                case _:
+                    print("\nInvalid Input!")
 
     def stayHit(self):
-        user = (
-            input("Would you like to hit or stay? (Press 'Enter' To Quit) ")
-            .lower()
-            .strip()
-        )
-        if user == "":
-            return False
-        elif user == "hit" or user == "h":
-            return "hit"
-        elif user == "stay" or user == "s":
-            return "stay"
-        else:
-            print("Invalid Input!")
+        while True:
+            match input("Would you like to hit or stay? ").lower().strip():
+                case "quit" | "q" | "":
+                    return False
+
+                case "hit" | "h":
+                    return "hit"
+
+                case "stay" | "s":
+                    return "stay"
+
+                case _:
+                    print("\nInvalid Input!")
 
     def displayScore(self,score):
-        print(f"\033[1mScore : {score}\033[0m")
-        print()
-
-    def displayCard(self, whichCard, value):
-        if whichCard == "deck":
-            print(f"** Deck: {value} Cards **")
-            print()
-
-        elif whichCard == "hit card":
-            print()
-            print("Card")
-            print("-" * 4)
+        print(f"Score : {score}")
 
     def displayWinner(self, whoWon, score):
 
-        if whoWon == "you_won":
-            print()
-            print(f"You won {score} points!")
+        match whoWon:
+            case "you_won":
+                print()
+                print(f"--> You won {score} points! <--".center(85))
 
-        if whoWon == "dealerWon":
-            print("You lost, dealer has a better hand.")
-            print("Points for hand : 0")
+            case "dealerWon":
+                print("--> You lost, dealer has a better hand. <--".center(85))
 
-        if whoWon == "dealt_lost":
-            print("Dealt hand over 21!")
-            print("Bad Luck!")
-            print("Points for hand : 0")
+            case "dealt_lost":
+                print("--> Dealt hand over 21! <--".center(85))
+                print("--> Bad Luck! <--".center(85))
 
-        if whoWon == "over_21":
-            print("You lost, went over 21!")
-            print("Points for hand : 0")
+            case "over_21":
+                print("--> You lost, went over 21! <--".center(85))
 
     def gameStats(self, score, hands, average):
-
-        print()
-        print("Thanks for Playing!")
-        print()
-        print()
-
-        endGameMSG = (
-            "                                                              "
-            + f"\n    Scores                    |        {score}           ".rjust(10)
-            + f"\n    Hands played              |        {hands}           ".rjust(10)
-            + f"\n    Average Score             |        {average:.2f}     ".rjust(10)
-            + "\n                                                          "
+        custMSG = (
+            "------------------------------------------------------\n".center(85)
+            +"|                Thanks for Playing!                 |\n".center(56)
+            +"------------------------------------------------------\n".center(84)
+            +"| --> Money Won".rjust(10) + "|".rjust(15) + f"{score:>1} |\n".rjust(25)
+            +"| --> Rounds".rjust(27) + "|".rjust(18) + f"{hands:>1} |\n".rjust(25)
+            +"| --> Average Winning".rjust(36) + "|".rjust(9) + f"{average:>1} |\n".rjust(25)
+            +"------------------------------------------------------".center(84)
         )
-        print(endGameMSG)
+
         print()
+        print(custMSG)
 
     def quitGameDialog(self): 
-        print()
-        self.end = input("Are you sure you want to quit? ").lower().strip()
-        print()
-        
-        if self.end == "yes":
-            return False
-        
-        elif self.end == "no":
-            return True
-        
-        else:
-            print("Invalid Input!")
+        while True:
+            match input("\t--> Are you sure you want to quit? ").lower().strip():
+                case "yes" | "y":
+                        return False
+                    
+                case "no" | "n":
+                    break
+                    
+                case _:
+                    print("Invalid Input!")
 
-    def displayCards(self,hand,hideCard):
-        suits = {
-            "hearts" : "\u2665", 
-            "diamonds" : "\u2666",
-            "clubs" : "\u2663",
-            "spades" : "\u2660"
-        }
-        cards = defaultdict(list)
-
-
+    def hiddenCard(self): 
         hiddenCard = [
             "|------------|",
             "|$$$$$$$$$$$$|",
@@ -187,7 +166,17 @@ class UserInterface:
             "|------------|"
         ]
 
-        cards["hidden"] = hiddenCard
+        self.cards["hidden"] = hiddenCard
+
+    def createCard(self,hand,hideCard):
+        # print(hand)
+        # ASCII conversion for card suits
+        suits = {
+            "hearts" : "\u2665", 
+            "diamonds" : "\u2666",
+            "clubs" : "\u2663",
+            "spades" : "\u2660"
+        }
 
         for card in hand: 
             rank = card[0]
@@ -195,37 +184,52 @@ class UserInterface:
 
             for line in range(0,9): 
                 if line == 0: 
-                    cards[line].append("|------------|")
+                    self.cards[line].append("|------------|")
                 
                 elif line == 1: 
-                    cards[line].append(f"| {rank:<11}|")
+                    self.cards[line].append(f"| {rank:<11}|")
 
                 elif line == 4:
-                    cards[line].append(f"|{suit:^12}|")
+                    self.cards[line].append(f"|{suit:^12}|")
 
                 elif line == 7:
-                    cards[line].append(f"|{rank:>11} |")
+                    self.cards[line].append(f"|{rank:>11} |")
 
                 elif line == 8:
-                    cards[line].append("|------------|")
+                    self.cards[line].append("|------------|")
                 else: 
-                    cards[line].append("|            |")
+                    self.cards[line].append("|            |")
 
+        self.displayCard(len(hand), hideCard)
+        self.resetCards()
+
+    def resetCards(self):
+        self.cards = defaultdict(list)
+        self.hiddenCard() 
+
+    def displayCard(self,numCards, hideCard):
         if hideCard == "hide":
             for line in range(9):
-                print(cards.get("hidden")[line], end = " ")
-                for card in range(0,len(hand)-1):
-                    print(cards[line][card], end= " ")
+                print(self.cards.get("hidden")[line], end = " ")
+                for card in range(0,numCards-1):
+                    print(self.cards[line][card], end= " ")
                 
                 print(" ")
                 
         else: 
+            
             for line in range(9): 
-                for card in range(0,len(hand)):
-                    print(cards[line][card], end= " ")
+                for card in range(0,numCards):
+                    print(self.cards[line][card], end= " ")
                 
                 print(" ")
 
-
 if __name__ == "__main__":
-    UI = UserInterface()
+    test = UserInterface()
+
+    # test.gameStats(1,1,1)
+    # test.gameStats(10,10,10)
+    # test.gameStats(10000000,10000000,1000000)
+    # test.gameStats(0,10,1000)
+
+    test.createCard([[3, 'clubs'], [13, 'diamonds']],None)

@@ -28,7 +28,7 @@ class Deck:
         if randSuit not in suits:
             randomPick = random.randrange(0, len(suits))
             randSuit = suits[randomPick]
-        
+        #/ change randomValue to randomRank
         randomValue = random.randint(1, 13)
         
         while True:
