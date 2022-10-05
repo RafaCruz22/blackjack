@@ -4,10 +4,44 @@ from turtle import clear
 
 
 class UserInterface:
-
     def __init__(self):
         self.cards = defaultdict(list)
-        self.hiddenCard() 
+        self.hiddenCard("ø")
+        self.deckSymbol1 = "∫"
+        self.deckSymbol2 = "∂"
+
+    def hiddenCard(self, symbol): 
+        hiddenCard = [
+            "|" + "|".rjust(13, "-"), #12
+            "|" + "|".rjust(13, f"{symbol}"),
+            "|" + "|".rjust(13, f"{symbol}"),
+            "|" + "|".rjust(13, f"{symbol}"),
+            "|" + "|".rjust(13, f"{symbol}"),
+            "|" + "|".rjust(13, f"{symbol}"),
+            "|" + "|".rjust(13, f"{symbol}"),
+            "|" + "|".rjust(13, f"{symbol}"),
+            "|" + "|".rjust(13, "-"),
+        ]
+
+        self.cards["hidden"] = hiddenCard
+
+    def deckCard(self, deckCount):
+        deckCard = [
+            "|" + "|".rjust(13, "-"), #12
+            "|" + "|".rjust(13, f"{self.deckSymbol1}"),
+            "|" + "|".rjust(13, f"{self.deckSymbol2}"),
+            "|" + "|".rjust(13, f"{self.deckSymbol1}"),
+            f"|---> {deckCount} <---|",
+            "|" + "|".rjust(13, f"{self.deckSymbol1}"),
+            "|" + "|".rjust(13, f"{self.deckSymbol2}"),
+            "|" + "|".rjust(13, f"{self.deckSymbol1}"),
+            "|" + "|".rjust(13, "-"),
+        ]
+
+        for line in deckCard:
+            print(line)
+        
+        print()
 
     def gameIntro(self):
 
@@ -32,12 +66,10 @@ class UserInterface:
         return gameInfo
 
     def banner(self, whichBanner : str, msg : str ):
-
         match whichBanner:
             case "complete": 
-                print()
                 print(("_" * 85) + "\n" )
-                print(msg.center(60))
+                print(msg.center(85))
                 print(("_" * 85) + "\n" )
 
             case "round": 
@@ -57,7 +89,9 @@ class UserInterface:
                 print()
 
             case "deck":
-                print(f"--> Deck: {msg} Cards <--\n")
+                print()
+                print("Deck")
+                print("-" * 4)
 
             case "card":
                 print()
@@ -72,17 +106,10 @@ class UserInterface:
         print(msg)
         print("-" * len(msg))
 
-    def deckDisplay(self, deckStatus):
-
-        if deckStatus == "empty":
-            print("Dealt hand over 21!")
-            print("Bad Luck!")
-            print("Points for hand : 0")
-
-    def playNewGame(self):
+    def startDialog(self):
         print()
         while True:
-            match input("Start BlackJack?: ").lower().strip():
+            match input("--> Start BlackJack?: ").lower().strip():
                 case "yes" | "y":
                     return True
 
@@ -90,9 +117,10 @@ class UserInterface:
                     return False
 
                 case _:
-                    print("\nInvalid Input!")
+                    print("--> Invalid Input!")
+                    print("--> Type 'yes' or 'no' to start games.")
 
-    def stayHit(self):
+    def playerDecision(self):
         while True:
             match input("Would you like to hit or stay? ").lower().strip():
                 case "quit" | "q" | "":
@@ -105,7 +133,22 @@ class UserInterface:
                     return "stay"
 
                 case _:
-                    print("\nInvalid Input!")
+                    print("--> Invalid Input!")
+                    print("--> Type 'hit' or 'stay'.")
+                    print("--> Enter 'quit' or Press 'Enter' to quit game.")
+
+    def quitDialog(self): 
+        while True:
+            match input("\t--> Are you sure you want to quit? ").lower().strip():
+                case "yes" | "y":
+                        return False
+                    
+                case "no" | "n":
+                    break
+                    
+                case _:
+                    print("--> Invalid Input!")
+                    print("--> Type 'yes' or 'no' to quit game.")
 
     def displayScore(self,score):
         print(f"Score : {score}")
@@ -141,35 +184,7 @@ class UserInterface:
         print()
         print(custMSG)
 
-    def quitGameDialog(self): 
-        while True:
-            match input("\t--> Are you sure you want to quit? ").lower().strip():
-                case "yes" | "y":
-                        return False
-                    
-                case "no" | "n":
-                    break
-                    
-                case _:
-                    print("Invalid Input!")
-
-    def hiddenCard(self): 
-        hiddenCard = [
-            "|------------|",
-            "|$$$$$$$$$$$$|",
-            "|¢¢¢¢¢¢¢¢¢¢¢¢|",
-            "|$$$$$$$$$$$$|",
-            "|¢¢¢¢¢¢¢¢¢¢¢¢|",
-            "|$$$$$$$$$$$$|",
-            "|¢¢¢¢¢¢¢¢¢¢¢¢|",
-            "|$$$$$$$$$$$$|",
-            "|------------|"
-        ]
-
-        self.cards["hidden"] = hiddenCard
-
-    def createCard(self,hand,hideCard):
-        # print(hand)
+    def createCard(self,hand):
         # ASCII conversion for card suits
         suits = {
             "hearts" : "\u2665", 
@@ -200,12 +215,9 @@ class UserInterface:
                 else: 
                     self.cards[line].append("|            |")
 
-        self.displayCard(len(hand), hideCard)
-        self.resetCards()
-
     def resetCards(self):
         self.cards = defaultdict(list)
-        self.hiddenCard() 
+        self.hiddenCard("ø") 
 
     def displayCard(self,numCards, hideCard):
         if hideCard == "hide":
@@ -217,7 +229,6 @@ class UserInterface:
                 print(" ")
                 
         else: 
-            
             for line in range(9): 
                 for card in range(0,numCards):
                     print(self.cards[line][card], end= " ")
@@ -233,3 +244,4 @@ if __name__ == "__main__":
     # test.gameStats(0,10,1000)
 
     test.createCard([[3, 'clubs'], [13, 'diamonds']],None)
+    test.deckCard(52,"∂","∫")
