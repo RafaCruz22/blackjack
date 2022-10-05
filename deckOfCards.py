@@ -2,60 +2,43 @@ import random
 
 class Deck:
     def __init__(self):
-        self.deckCount = 52
-        self.suits = {
-            "spades": set(),
-            "clubs": set(),
-            "diamonds": set(),
-            "hearts": set(),
-        }
+        self.deck = [] 
+        self.suits = ["spades","clubs","diamonds","hearts"]
+        self.createDeck()
 
     def getDeckCount(self):
-        return self.deckCount
+        return len(self.deck)
 
-    def resetAmount(self):
-        self.deckCount = 52
+    def createDeck(self):
+        for suit in self.suits:
+            for rank in range(1,14):
+                self.deck.append((suit,rank))
 
-    def decreaseMainDeck(self):
-        self.deckCount -= 1
+    def dealCard(self): 
+        return self.deck.pop(-1)
 
-    def dealCards(self):
-        suits = ["spades", "clubs", "diamonds", "hearts"]
-        random.shuffle(suits)
-        randomPick = random.randrange(0, len(suits))
-        randSuit = suits[randomPick]
-        
-        if randSuit not in suits:
-            randomPick = random.randrange(0, len(suits))
-            randSuit = suits[randomPick]
-        #/ change randomValue to randomRank
-        randomValue = random.randint(1, 13)
-        
-        while True:
-            if randomValue not in self.suits[randSuit]:
-                self.suits[randSuit].add(randomValue)
-                return randSuit, randomValue
-                break
-            
-            elif len(self.suits[randSuit]) != 13:
-                for x in range(1, 20):
-                    x = random.randint(1, 13)
-                    if x not in self.suits[randSuit]:
-                        randomValue = x
-                        break
-            
-            elif len(self.suits[randSuit]) == 13:
-                suits.remove(randSuit)
-                randomPick = random.randrange(0, len(suits))
-                randSuit = suits[randomPick]
+    def shuffleDeck(self):
+        random.shuffle(self.deck)
 
     def resetDeck(self):
-        self.suits = {
-            "spades": set(),
-            "clubs": set(),
-            "diamonds": set(),
-            "hearts": set(),
-        }
+        self.deck.clear()
+        self.createDeck()
 
-    def getsuits(self):
-        return self.suits
+if __name__ == "__main__":
+    test = Deck()
+
+    # test.createDeck()
+
+    for i in range(4):
+        print(test.dealCard())
+
+    for i in range(20): 
+        test.shuffleDeck()
+    
+    print("Deck Shuffle")
+    
+    for i in range(4):
+        print(test.dealCard())
+
+    test.resetDeck()
+    print(len(test.getDeckCount))
