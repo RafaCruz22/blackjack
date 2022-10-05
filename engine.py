@@ -1,3 +1,4 @@
+from lib2to3.pgen2.token import EQUAL
 import random
 from turtle import clear
 from deckOfCards import Deck
@@ -17,23 +18,29 @@ class BlackJackEngine:
 
         self.UI.banner("top", self.UI.gameIntro())
 
-        newGame = self.UI.playNewGame()
+        newGame = self.UI.startDialog()
         if newGame == True:
+            self.deck.shuffleDeck()
             self.playRound()
         
         self.showStats()
  
     def playRound(self):
-        while self.deck.getDeckCount() > 1:
+        while True:
+            self.shuffle()
+
+            #deals cards to player first then dealer. alternating cards dealt
+            self.firstServe()
+
+            deckCount = self.deck.getDeckCount()
 
             self.round += 1
 
             self.UI.banner("round", str(self.round))
-            self.UI.banner("deck", str(self.deck.getDeckCount()))
+            self.UI.banner("deck",None)
+            self.UI.deckCard(deckCount)
             self.UI.banner("card", None)
-
-            #deals a card to player first then dealer. cards dealt alternating
-            self.dealHand()
+            
             self.showHands("hideDealer")
 
             #checks if player was dealt a hand over 21 
@@ -42,153 +49,158 @@ class BlackJackEngine:
             if self.calculatesHand() == False:
                 return False
 
-    def dealHand(self):
+    def shuffle(self):
+        if self.round%3 == 0 and self.round >= 1:
+            self.deck.resetDeck()
+            for i in range(3):
+                self.deck.shuffleDeck()    
+            self.UI.banner("complete","--> Shuffle Successful <--")
+
+    def firstServe(self):
         turn = "players"
-        for dealCards in range(4):
-            suit, rank = self.deck.dealCards()
+        for dealCard in range(4):
+            suit, rank = self.deck.dealCard()
 
             if turn == "players":
-                self.playersHand.append([rank, suit])
+                self.playersHand.append((rank, suit))
                 self.playerScore += rank
                 turn = "dealer"
             else: 
-                self.dealersHand.append([rank, suit])
+                self.dealersHand.append((rank, suit))
                 self.dealerScore += rank
                 turn = "players"
     
-            self.deck.decreaseMainDeck()
-
     def calculatesHand(self):
-        
         while self.playerScore != 0:
-            
-            stayHit = self.UI.stayHit()
-
-            if stayHit != False:
-                self.UI.banner("deck", str(self.deck.getDeckCount()))
-            
-            #player hit
-            if stayHit == "hit":
-                # might want to display CARD
-                suit, rank = self.deck.dealCards()
-                self.playersHand.append([rank, suit])
-
-                self.deck.decreaseMainDeck()
-                self.playerScore += rank
-
-                self.showHands("hideDealer")
-                
-                self.check("hit_one_card_remain")
-                check = self.check("over_21")
-                
-                if check == "end":
-                    break
-            
-            #player Stayed
-            elif stayHit == "stay":
-
-                # deal to dealer until dealers has over players hand,at 21, or over the limit
-                # if dealer & players score are eqaul player keeps his bet
-                check = self.check("dealerWon") 
-                
-                if check == "end":
-                    break
-            
-            elif stayHit == False:
-                quitResult = self.UI.quitGameDialog()
-                
-                match quitResult: 
-                    case True:
-                        return True
-                    case False: 
-                        return False 
+            match self.UI.playerDecision():
+                #player hit
+                case "hit":
+                    # might want to display CARD
+                    suit, rank = self.deck.dealCard()
+                    self.playersHand.append((rank, suit))
+                    self.playerScore += rank
+                    self.showHands("hideDealer")
+                    self.check("over_21")
                     
-                    case _: 
-                        quitResult        
+                
+                #player Stayed
+                case "stay":
+                    # deal to dealer until dealers has over players hand,at 21, or over the limit
+                    # if dealer & players score are eqaul player keeps his bet
+                    while self.check("dealerWon") != False: 
+                        suit, rank = self.deck.dealCard()
+                        self.dealersHand.append((rank, suit))
+                        self.dealerScore += rank
+
+                    break
+                
+                case "doubledown":
+                    pass
+
+                #player wants to quit game
+                case _:
+                    quitResult = self.UI.quitDialog()
+                    
+                    match quitResult: 
+                        case True:
+                            return True
+                            self.deck.resetDeck()
+                        case False: 
+                            return False 
+                        
+                        case _: 
+                            quitResult        
 
     def showHands(self,show):
         print()
         match show:
             case "both":
-                self.UI.whosTurn("Dealer")
-                self.UI.createCard(self.dealersHand,None)
+                self.viewDealer(None)
                 self.UI.displayScore(self.dealerScore)
                 print()
 
-                self.UI.whosTurn("Player")
-                self.UI.createCard(self.playersHand,None)
-                self.UI.displayScore(self.playerScore)
+                self.viewPlayer()
                 print()
             
             case "hideDealer":
-                self.UI.whosTurn("Dealer")
-                self.UI.createCard(self.dealersHand,"hide")
+                self.viewDealer("hide")
                 print()
 
-                self.UI.whosTurn("Player")
-                self.UI.createCard(self.playersHand,None)
-                self.UI.displayScore(self.playerScore)
+                self.viewPlayer()
                 print()
 
             case _:
                 print("Error")
 
+    def viewDealer(self, hide):
+        self.UI.whosTurn("Dealer")
+        self.UI.createCard(self.dealersHand)
+        self.UI.displayCard(len(self.dealersHand), hide)
+        self.UI.resetCards()
+
+    def viewPlayer(self): 
+        self.UI.whosTurn("Player")
+        self.UI.createCard(self.playersHand)
+        self.UI.displayCard(len(self.playersHand), None)
+        self.UI.displayScore(self.playerScore)
+        self.UI.resetCards()
+        print()
+
     def check(self, check):
+        dealerWins = self.dealerScore > self.playerScore
+        dealerBust = self.dealerScore > self.sumCap
+        playerBust = self.playerScore > self.sumCap
+        dealer21 = self.dealerScore == self.sumCap
+        player21 = self.playerScore == self.sumCap
+        
         match check:
             case "dealt_over_21":
-                if self.playerScore > self.sumCap:
-                    self.UI.banner("card", None)
+                if playerBust:
                     self.showHands("both")
-
                     self.UI.displayWinner("dealt_lost", None)
                     self.stats.increaseRound()
-
-                    self.playerScore = 0
                     self.resetHands()
-            
-            case "hit_one_card_remain":
-                if self.deck.getDeckCount() <= 1:
-                    if (self.playerScore <= self.sumCap) and (self.playerScore > self.dealerScore):
-                        self.stats.playerPoints(self.playerScore)
-
-                        self.showHands("both")
-
-                        self.UI.displayWinner("you_won", self.playerScore)
-                        self.stats.increaseRound()
-                        
-
-                        self.resetHands()
+                    
+                    return False
             
             case "over_21":
-                if self.playerScore > self.sumCap:
-                    
+                if playerBust:
                     self.showHands("both")
                     self.UI.displayWinner("over_21", None)
                     self.stats.increaseRound()
-
                     self.resetHands()
-                    return "end"
-        
+                    
+                    return False
+                
+                elif player21:
+                    self.playerWon()
+                    return False
+
             case "dealerWon":
-                if self.playerScore <= self.dealerScore and self.dealerScore <= self.sumCap:
-                    
-                    self.showHands("both")
+                # not sure if equal who wins or nothing happens. temp: dealer must be strictly over player
+                if (dealerWins | dealer21) and (dealerBust is False):
+                    self.dealerWon()
+                    return False  
 
-                    self.UI.displayWinner("dealerWon", None)
-                    self.stats.increaseRound()
+                elif dealerBust:
+                    self.playerWon()
+                    return False
+            
+            case _: 
+                print("No Match Found.")
 
-                    self.resetHands()
-                    
-                else:
-                    self.showHands("both")
+    def playerWon(self): 
+        self.showHands("both")
+        self.UI.displayWinner("you_won", self.playerScore)
+        self.stats.increaseRound()
+        self.resetHands()
 
-                    self.UI.displayWinner("you_won", self.playerScore)
-                    self.stats.playerPoints(self.playerScore)
-                    self.stats.increaseRound()
+    def dealerWon(self): 
+        self.showHands("both")
+        self.UI.displayWinner("dealerWon", None)
+        self.stats.increaseRound()
+        self.resetHands()
 
-                    self.resetHands()
-                    return "end"
-    
     def resetHands(self): 
         self.dealersHand, self.playersHand = [], []
         self.dealerScore, self.playerScore  = 0, 0
