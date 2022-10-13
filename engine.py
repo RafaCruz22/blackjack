@@ -277,7 +277,7 @@ class BlackJackEngine:
         post: clears dealer and players hand and sets scores to zero '''
         self.dealersHand.clear()
         self.playersHand.clear()
-        self.dealerScore, self.playerScore = 0
+        self.dealerScore, self.playerScore = 0, 0
 
     # --------------------------------------------------------------------------
     def showStats(self):
