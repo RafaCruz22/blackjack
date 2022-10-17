@@ -1,6 +1,6 @@
 # blackjack
 
-This is a console version of blackjack done in my sphomore year. It isn't finished but i'm pretty happy with it. Feel free to clone it and add or give advice on it.
+This is a console version of blackjack done in my sphomore year. It isn't finished but i'm pretty happy with it. Feel free to clone it and give advice on it.
 
 
 ![blackjack1](https://user-images.githubusercontent.com/41638598/196259747-dbb4668b-9384-4d34-bc47-90748a0ffb53.gif)
