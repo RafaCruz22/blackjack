@@ -28,9 +28,7 @@ class BlackJackEngine:
         ''' Starts Game
         post: prints the introduction message and banner, checks if user 
         wants to start a blckjack game, shuffles deck, prints statistic 
-        when game ends 
-
-        '''
+        when game ends '''
 
         self.UI.banner("top", self.UI.gameIntro())
 
@@ -154,9 +152,8 @@ class BlackJackEngine:
         '''Reveals player and dealers hand depending if the round ends 
         or started
         pre: whoms hand to reveal. just the player or dealer and player
-        post: prints the players or/and dealers hand 
+        post: prints the players or/and dealers hand '''
 
-        '''
         print()
         match show:
             case "both":
@@ -181,8 +178,8 @@ class BlackJackEngine:
     def viewDealer(self, hide):
         '''Reveals Dealers cards 
         pre: "hide" or None
-        post: prints dealers hard, prints dealer banner
-        '''
+        post: prints dealers hard, prints dealer banner'''
+
         self.UI.whosTurn("Dealer")
         self.UI.createCard(self.dealersHand)
         self.UI.displayCard(len(self.dealersHand), hide)
@@ -191,8 +188,8 @@ class BlackJackEngine:
     # --------------------------------------------------------------------------
     def viewPlayer(self):
         '''Reveals Players cards 
-        post: prints player hard, prints player banner
-        '''
+        post: prints player hard, prints player banner'''
+
         self.UI.whosTurn("Player")
         self.UI.createCard(self.playersHand)
         self.UI.displayCard(len(self.playersHand), None)
@@ -205,6 +202,7 @@ class BlackJackEngine:
         '''Evaluates hands
         pre: condition being checked for 
         post: winner of round. returns False if there is a winner'''
+
         dealerWins = self.dealerScore > self.playerScore
         dealerBust = self.dealerScore > self.sumCap
         playerBust = self.playerScore > self.sumCap
@@ -253,8 +251,8 @@ class BlackJackEngine:
     def playerWon(self):
         '''Player wins the round 
         post: prints both player and dealers hand. Alerts player that they won
-        Increased round count and resets hands.
-        '''
+        Increased round count and resets hands.'''
+
         self.showHands("both")
         self.UI.displayWinner("you_won", self.playerScore)
         self.stats.increaseRound()
@@ -264,8 +262,8 @@ class BlackJackEngine:
     def dealerWon(self):
         '''Dealer wins the round 
         post: prints both player and dealers hand. Alerts player that they lost
-        Increased round count and resets hands.
-        '''
+        Increased round count and resets hands.'''
+
         self.showHands("both")
         self.UI.displayWinner("dealerWon", None)
         self.stats.increaseRound()
@@ -275,6 +273,7 @@ class BlackJackEngine:
     def resetHands(self):
         ''' Resets both player and dealers hand and associated hand score 
         post: clears dealer and players hand and sets scores to zero '''
+
         self.dealersHand.clear()
         self.playersHand.clear()
         self.dealerScore, self.playerScore = 0, 0
@@ -282,8 +281,8 @@ class BlackJackEngine:
     # --------------------------------------------------------------------------
     def showStats(self):
         '''Displays game stats 
-        post: players Score, number of rounds played, and winning percentage
-        '''
+        post: players Score, number of rounds played, and winning percentage'''
+
         scores = self.stats.getWinnings()
         rounds = self.stats.getRoundsPlayed(self.round)
         percentage = self.stats.average()
@@ -291,11 +290,9 @@ class BlackJackEngine:
 
 
 class Statistics:
-    ''' 
-        Keep track of the games rounds, score, and winning percentage
-    '''
-    # --------------------------------------------------------------------------
+    ''' Keep track of the games rounds, score, and winning percentage'''
 
+    # --------------------------------------------------------------------------
     def __init__(self):
         '''Constructor
         post: score,rounds and number of rounds set to zero'''
